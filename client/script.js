@@ -8,10 +8,10 @@ const taskForm = document.getElementById('taskForm');
 const taskTableBody = document.getElementById('taskTableBody');
 const taskCount = document.getElementById('taskCount');
 const emptyState = document.getElementById('emptyState');
+const toastContainer = document.getElementById('toastContainer');
 
 let currentUser = null;
 let tasks = [];
-let editingTaskId = null;
 
 function getCurrentTimestamp() {
     const now = new Date();
@@ -28,9 +28,39 @@ function isValidInput(value) {
     return value && value.trim().length > 0;
 }
 
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    toast.innerHTML = `
+        <span>${icons[type] || ''} ${message}</span>
+        <button class="toast__close">&times;</button>
+    `;
+    toast.querySelector('.toast__close').addEventListener('click', () => toast.remove());
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+function clearFieldErrors() {
+    document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.form__input.error').forEach(el => el.classList.remove('error'));
+}
+
+function showFieldError(inputId, errorId, message) {
+    const input = document.getElementById(inputId);
+    const errorEl = document.getElementById(errorId);
+    if (input) input.classList.add('error');
+    if (errorEl) errorEl.textContent = message;
+}
+
 function showUserInfo(user) {
     userInfo.innerHTML = `
-        <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin-top: 10px;">
+        <div class="user-feedback user-feedback--success">
             <strong>✅ Usuario encontrado:</strong><br>
             <strong>Nombre:</strong> ${user.name}<br>
             <strong>Rol:</strong> ${user.rol}<br>
@@ -41,7 +71,7 @@ function showUserInfo(user) {
 
 function showUserNotFound() {
     userInfo.innerHTML = `
-        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin-top: 10px; color: #721c24;">
+        <div class="user-feedback user-feedback--error">
             ❌ El usuario no está registrado en el sistema.
         </div>
     `;
@@ -50,7 +80,7 @@ function showUserNotFound() {
 
 function showValidationError(message) {
     userInfo.innerHTML = `
-        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin-top: 10px; color: #721c24;">
+        <div class="user-feedback user-feedback--warning">
             ⚠️ ${message}
         </div>
     `;
@@ -84,42 +114,39 @@ function updateTaskCount() {
     taskCount.textContent = tasks.length === 1 ? "1 tarea" : `${tasks.length} tareas`;
 }
 
+const statusColors = {
+    'Pendiente': '#ffc107',
+    'En progreso': '#17a2b8',
+    'Completada': '#28a745'
+};
+
 function createTaskElement(task) {
     const row = document.createElement('tr');
-    row.style.borderBottom = '1px solid #dee2e6';
     row.style.animation = 'fadeIn 0.3s ease';
     row.dataset.taskId = task.id;
-    
-    const statusColors = {
-        'Pendiente': '#ffc107',
-        'En progreso': '#17a2b8',
-        'Completada': '#28a745'
-    };
-    
+
     row.innerHTML = `
-        <td style="padding: 12px;">
+        <td>
             <span class="task-title">${task.title}</span>
-            <input class="task-edit-input task-edit-title" type="text" value="${task.title.replace(/"/g, '&quot;')}" style="display:none; width:100%; padding:6px; border:2px solid #4f46e5; border-radius:6px; font-size:14px;">
+            <input class="edit-input task-edit-title" type="text" value="${task.title.replace(/"/g, '&quot;')}">
         </td>
-        <td style="padding: 12px;">
+        <td>
             <span class="task-desc">${task.description}</span>
-            <input class="task-edit-input task-edit-desc" type="text" value="${task.description.replace(/"/g, '&quot;')}" style="display:none; width:100%; padding:6px; border:2px solid #4f46e5; border-radius:6px; font-size:14px;">
+            <input class="edit-input task-edit-desc" type="text" value="${task.description.replace(/"/g, '&quot;')}">
         </td>
-        <td style="padding: 12px;">
-            <span class="task-status" style="background: ${statusColors[task.status]}; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px;">
-                ${task.status}
-            </span>
-            <select class="task-edit-status" style="display:none; width:100%; padding:6px; border:2px solid #4f46e5; border-radius:6px; font-size:14px;">
+        <td>
+            <span class="status-badge task-status" style="background: ${statusColors[task.status]}">${task.status}</span>
+            <select class="edit-input task-edit-status">
                 <option value="Pendiente" ${task.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
                 <option value="En progreso" ${task.status === 'En progreso' ? 'selected' : ''}>En progreso</option>
                 <option value="Completada" ${task.status === 'Completada' ? 'selected' : ''}>Completada</option>
             </select>
         </td>
-        <td style="padding: 12px; text-align: center; white-space: nowrap;">
-            <button class="btn-edit" style="background:#4f46e5; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px; margin-right:4px;">Editar</button>
-            <button class="btn-delete" style="background:#ef4444; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">Eliminar</button>
-            <button class="btn-save" style="background:#10b981; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px; margin-right:4px; display:none;">Guardar</button>
-            <button class="btn-cancel" style="background:#6b7280; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px; display:none;">Cancelar</button>
+        <td class="actions-cell">
+            <button class="action-btn action-btn--edit btn-edit">Editar</button>
+            <button class="action-btn action-btn--delete btn-delete">Eliminar</button>
+            <button class="action-btn action-btn--save btn-save" style="display:none">Guardar</button>
+            <button class="action-btn action-btn--cancel btn-cancel" style="display:none">Cancelar</button>
         </td>
     `;
 
@@ -127,7 +154,7 @@ function createTaskElement(task) {
     row.querySelector('.btn-delete').addEventListener('click', () => deleteTask(task.id, row));
     row.querySelector('.btn-save').addEventListener('click', () => saveEdit(task.id, row));
     row.querySelector('.btn-cancel').addEventListener('click', () => cancelEdit(row, task));
-    
+
     taskTableBody.appendChild(row);
 }
 
@@ -171,7 +198,7 @@ async function saveEdit(taskId, row) {
     const newStatus = row.querySelector('.task-edit-status').value;
 
     if (!newTitle || !newDesc) {
-        alert('El título y la descripción no pueden estar vacíos');
+        showToast('El título y la descripción no pueden estar vacíos', 'warning');
         return;
     }
 
@@ -190,21 +217,19 @@ async function saveEdit(taskId, row) {
             row.querySelector('.task-title').textContent = updatedTask.title;
             row.querySelector('.task-desc').textContent = updatedTask.description;
             const statusBadge = row.querySelector('.task-status');
-            const statusColors = { 'Pendiente': '#ffc107', 'En progreso': '#17a2b8', 'Completada': '#28a745' };
             statusBadge.textContent = updatedTask.status;
             statusBadge.style.background = statusColors[updatedTask.status];
-            console.log('Tarea actualizada:', updatedTask);
+            showToast('Tarea actualizada correctamente', 'success');
         } else {
-            alert('Error al actualizar la tarea');
+            showToast('Error al actualizar la tarea', 'error');
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Error de conexión al actualizar');
+        showToast('Error de conexión al actualizar la tarea', 'error');
     }
 }
 
 async function deleteTask(taskId, row) {
-    if (!confirm('¿Eliminar esta tarea?')) return;
+    if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
 
     try {
         const response = await fetch(`${API_URL}/tasks/${taskId}`, {
@@ -216,64 +241,57 @@ async function deleteTask(taskId, row) {
             row.remove();
             updateTaskCount();
             if (tasks.length === 0) showEmptyState();
-            console.log('Tarea eliminada:', taskId);
+            showToast('Tarea eliminada correctamente', 'success');
         } else {
-            alert('Error al eliminar la tarea');
+            showToast('Error al eliminar la tarea', 'error');
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Error de conexión al eliminar');
+        showToast('Error de conexión al eliminar la tarea', 'error');
     }
 }
 
 async function searchUser() {
     const userId = userIdInput.value;
-    
+
     if (!isValidInput(userId)) {
         showValidationError("Por favor ingresa un documento/ID válido");
         return;
     }
-    
+
     btnSearch.disabled = true;
     btnSearch.textContent = 'Buscando...';
     userInfo.innerHTML = '';
     taskFormContainer.style.display = 'none';
-    
+
     try {
         const response = await fetch(`${API_URL}/users`);
         const users = await response.json();
-        
-        console.log("Users desde API:", users);
-        console.log("Buscando ID:", userId);
-        
+
         const user = users.find(u => String(u.id).trim() === userId.trim());
-        
-        console.log("Usuario encontrado:", user);
-        
+
         if (user) {
             currentUser = user;
             showUserInfo(user);
             enableTaskForm();
-            
+
             const tasksResponse = await fetch(`${API_URL}/tasks?userId=${userId}`);
             const savedTasks = await tasksResponse.json();
-            
+
             tasks = savedTasks;
             taskTableBody.innerHTML = '';
-            
+
             if (tasks.length > 0) {
                 hideEmptyState();
                 tasks.forEach(task => createTaskElement(task));
             } else {
                 showEmptyState();
             }
-            
+
             updateTaskCount();
         } else {
             showUserNotFound();
         }
     } catch (error) {
-        console.error("Error:", error);
         showValidationError("Error de conexión: " + error.message + ". Verifica que el servidor esté corriendo.");
     } finally {
         btnSearch.disabled = false;
@@ -284,20 +302,30 @@ async function searchUser() {
 async function registerTask(event) {
     event.preventDefault();
     disableAllEditModes();
-    
+    clearFieldErrors();
+
     const titleInput = document.getElementById('taskTitle');
     const descriptionInput = document.getElementById('taskDescription');
     const statusInput = document.getElementById('taskStatus');
-    
+
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
     const status = statusInput.value;
-    
-    if (!title || !description) {
-        alert("Por favor completa todos los campos");
-        return;
+
+    let hasError = false;
+
+    if (!title) {
+        showFieldError('taskTitle', 'titleError', 'El título es obligatorio. Escribe un título para la tarea.');
+        hasError = true;
     }
-    
+
+    if (!description) {
+        showFieldError('taskDescription', 'descError', 'La descripción es obligatoria. Describe brevemente la tarea.');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
     const task = {
         userId: currentUser.id,
         userName: currentUser.name,
@@ -306,16 +334,14 @@ async function registerTask(event) {
         status: status,
         createdAt: getCurrentTimestamp()
     };
-    
+
     try {
         const response = await fetch(`${API_URL}/tasks`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(task)
         });
-        
+
         if (response.ok) {
             const savedTask = await response.json();
             tasks.push(savedTask);
@@ -323,13 +349,12 @@ async function registerTask(event) {
             hideEmptyState();
             updateTaskCount();
             taskForm.reset();
-            console.log('Tarea guardada en backend:', savedTask);
+            showToast('Tarea registrada exitosamente', 'success');
         } else {
-            alert('Error al guardar la tarea');
+            showToast('Error al guardar la tarea en el servidor', 'error');
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión: no se pudo guardar la tarea', 'error');
     }
 }
 
@@ -344,20 +369,17 @@ userIdInput.addEventListener('keypress', function(e) {
 taskForm.addEventListener('submit', registerTask);
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('DOM cargado - Sistema de gestión de tareas activo');
     showEmptyState();
 
-    // 🚀 Carga automática de IDs disponibles al entrar a la página
     try {
         const response = await fetch(`${API_URL}/users`);
         if (response.ok) {
             const users = await response.json();
             console.group("IDs DISPONIBLES PARA BUSCAR (Carga Inicial)");
-            console.log("Copia cualquiera de estos IDs en el buscador:");
             console.table(users.map(u => ({ ID: u.id, Nombre: u.name, Rol: u.rol })));
             console.groupEnd();
         }
     } catch (error) {
-        console.warn("No se pudieron precargar los IDs en consola. ¿El backend está encendido?", error.message);
+        console.warn("No se pudieron precargar los IDs. ¿El backend está encendido?", error.message);
     }
 });

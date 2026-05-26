@@ -20,11 +20,11 @@
                 <h2 class="card__title">1. Buscar Usuario</h2>
                 <div class="form__group">
                     <label for="userId" class="form__label">Documento / ID del Usuario</label>
-                    <div style="display: flex; gap: 10px;">
+                    <div class="search-group">
                         <input type="text" id="userId" class="form__input" placeholder="Ingresa tu documento/ID">
                         <button type="button" class="btn btn--primary" id="btnSearch">Buscar</button>
                     </div>
-                    <span id="userInfo" class="form__error" style="color: #2ecc71; display: block; margin-top: 10px;"></span>
+                    <div id="userInfo" class="form__error"></div>
                 </div>
             </div>
         </section>
@@ -37,11 +37,13 @@
                     <div class="form__group">
                         <label for="taskTitle" class="form__label">Título de la tarea</label>
                         <input type="text" id="taskTitle" class="form__input" placeholder="¿Qué hay que hacer?">
+                        <span class="field-error" id="titleError"></span>
                     </div>
 
                     <div class="form__group">
                         <label for="taskDescription" class="form__label">Descripción</label>
                         <textarea id="taskDescription" class="form__input form__textarea" rows="2" placeholder="Detalles de la tarea..."></textarea>
+                        <span class="field-error" id="descError"></span>
                     </div>
 
                     <div class="form__group">
@@ -69,19 +71,20 @@
             </div>
             
             <div class="messages-container">
-                <table class="task-table" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                    <thead>
-                        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                            <th style="padding: 12px; text-align: left;">Título</th>
-                            <th style="padding: 12px; text-align: left;">Descripción</th>
-                            <th style="padding: 12px; text-align: left;">Estado</th>
-                            <th style="padding: 12px; text-align: center;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="taskTableBody">
-                        <!-- Las filas se agregarán aquí -->
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody">
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- Estado vacío -->
                 <div class="messages-empty" id="emptyState">
@@ -97,6 +100,7 @@
         </footer>
     </div>
 
+    <div class="toast-container" id="toastContainer"></div>
     <script type="module" src="script.js"></script>
 </body>
 </html>

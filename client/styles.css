@@ -454,6 +454,242 @@ body {
 }
 
 /* ============================================
+   USER FEEDBACK
+   ============================================ */
+
+.user-feedback {
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+}
+
+.user-feedback--success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.user-feedback--error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.user-feedback--warning {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+/* ============================================
+   ACTIONS CELL
+   ============================================ */
+
+.actions-cell {
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ============================================
+   SEARCH GROUP
+   ============================================ */
+
+.search-group {
+    display: flex;
+    gap: 10px;
+}
+
+/* ============================================
+   TABLA DE TAREAS
+   ============================================ */
+
+.task-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.task-table thead tr {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.task-table th {
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.task-table th:last-child {
+    text-align: center;
+}
+
+.task-table td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.task-table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.task-table tbody tr:hover {
+    background-color: #f8f9ff;
+}
+
+/* Status badge */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Action buttons in table */
+.action-btn {
+    display: inline-block;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-family-base);
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.action-btn--edit {
+    background: var(--color-primary);
+    color: white;
+}
+
+.action-btn--delete {
+    background: var(--color-error);
+    color: white;
+}
+
+.action-btn--save {
+    background: var(--color-success);
+    color: white;
+}
+
+.action-btn--cancel {
+    background: var(--color-gray-500);
+    color: white;
+}
+
+.action-btn + .action-btn {
+    margin-left: 4px;
+}
+
+/* Inline edit inputs */
+.edit-input {
+    display: none;
+    width: 100%;
+    padding: 6px;
+    border: 2px solid var(--color-primary);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: var(--font-family-base);
+}
+
+/* ============================================
+   TOAST / NOTIFICACIONES
+   ============================================ */
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+    width: 100%;
+}
+
+.toast {
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-base);
+    box-shadow: var(--shadow-lg);
+    animation: slideInRight 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+}
+
+.toast--success {
+    background: var(--color-success);
+}
+
+.toast--error {
+    background: var(--color-error);
+}
+
+.toast--warning {
+    background: var(--color-warning);
+    color: var(--color-gray-900);
+}
+
+.toast--info {
+    background: var(--color-info);
+}
+
+.toast__close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+    padding: 0 4px;
+}
+
+.toast__close:hover {
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   TOOLTIP / VALIDACIÓN EN FORMULARIO
+   ============================================ */
+
+.field-error {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    margin-top: 4px;
+    font-weight: var(--font-weight-medium);
+}
+
+/* ============================================
    RESPONSIVE DESIGN
    ============================================ */
 
@@ -484,6 +720,48 @@ body {
         align-items: flex-start;
         gap: var(--spacing-sm);
     }
+
+    /* Search bar responsive */
+    .search-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-group .btn {
+        width: 100%;
+    }
+
+    /* Table responsive - scroll horizontal */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 calc(-1 * var(--spacing-md));
+        padding: 0 var(--spacing-md);
+    }
+
+    .task-table {
+        min-width: 500px;
+    }
+
+    .task-table th,
+    .task-table td {
+        padding: 10px 8px;
+        font-size: var(--font-size-sm);
+    }
+
+    /* Action buttons stack */
+    .task-table td:last-child {
+        white-space: nowrap;
+    }
+
+    .action-btn {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .action-btn + .action-btn {
+        margin-left: 3px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -495,6 +773,37 @@ body {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-sm);
+    }
+
+    .header__title {
+        font-size: var(--font-size-xl);
+    }
+
+    .card__title {
+        font-size: var(--font-size-lg);
+    }
+
+    .task-table th,
+    .task-table td {
+        padding: 8px 6px;
+        font-size: var(--font-size-xs);
+    }
+
+    .action-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .toast-container {
+        right: 10px;
+        left: 10px;
+        top: 10px;
+        max-width: none;
+    }
+
+    .toast {
+        padding: 12px 14px;
+        font-size: var(--font-size-xs);
     }
 }
 
