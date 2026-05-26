@@ -1,331 +1,363 @@
-/**
- * ============================================
- * EJERCICIO DE MANIPULACIÓN DEL DOM
- * ============================================
- * 
- * Objetivo: Aplicar conceptos del DOM para seleccionar elementos,
- * responder a eventos y crear nuevos elementos dinámicamente.
- * 
- * Autor: [Tu nombre aquí]
- * Fecha: [Fecha actual]
- * ============================================
- */
+const API_URL = "http://192.168.1.40:3002";
 
-// ============================================
-// 1. SELECCIÓN DE ELEMENTOS DEL DOM
-// ============================================
-
-/**
- * Seleccionamos los elementos del DOM que necesitamos manipular.
- * Usamos getElementById para obtener referencias a los elementos únicos.
- */
-
-// Formulario
-const messageForm = document.getElementById('messageForm');
-
-// Campos de entrada
-const userNameInput = document.getElementById('userName');
-const userMessageInput = document.getElementById('userMessage');
-
-// Botón de envío
-const submitBtn = document.getElementById('submitBtn');
-
-// Elementos para mostrar errores
-const userNameError = document.getElementById('userNameError');
-const userMessageError = document.getElementById('userMessageError');
-
-// Contenedor donde se mostrarán los mensajes
-const messagesContainer = document.getElementById('messagesContainer');
-
-// Estado vacío (mensaje que se muestra cuando no hay mensajes)
+const userIdInput = document.getElementById('userId');
+const btnSearch = document.getElementById('btnSearch');
+const userInfo = document.getElementById('userInfo');
+const taskFormContainer = document.getElementById('taskFormContainer');
+const taskForm = document.getElementById('taskForm');
+const taskTableBody = document.getElementById('taskTableBody');
+const taskCount = document.getElementById('taskCount');
 const emptyState = document.getElementById('emptyState');
 
-// Contador de mensajes
-const messageCount = document.getElementById('messageCount');
+let currentUser = null;
+let tasks = [];
+let editingTaskId = null;
 
-// Variable para llevar el conteo de mensajes
-let totalMessages = 0;
-
-
-// ============================================
-// 2. FUNCIONES AUXILIARES
-// ============================================
-
-/**
- * Valida que un campo no esté vacío ni contenga solo espacios en blanco
- * @param {string} value - El valor a validar
- * @returns {boolean} - true si es válido, false si no lo es
- */
-function isValidInput(value) {
-    // TODO: Implementar validación
-    // Pista: usa trim() para eliminar espacios al inicio y final
-    // Retorna true si después de trim() el string tiene longitud > 0
-}
-
-/**
- * Muestra un mensaje de error en un elemento específico
- * @param {HTMLElement} errorElement - Elemento donde mostrar el error
- * @param {string} message - Mensaje de error a mostrar
- */
-function showError(errorElement, message) {
-    // TODO: Implementar función para mostrar error
-    // Pista: asigna el mensaje al textContent del elemento
-}
-
-/**
- * Limpia el mensaje de error de un elemento específico
- * @param {HTMLElement} errorElement - Elemento del que limpiar el error
- */
-function clearError(errorElement) {
-    // TODO: Implementar función para limpiar error
-    // Pista: asigna un string vacío al textContent
-}
-
-/**
- * Valida todos los campos del formulario
- * @returns {boolean} - true si todos los campos son válidos, false si alguno no lo es
- */
-function validateForm() {
-    // TODO: Implementar validación completa del formulario
-    // 1. Obtener los valores de los inputs usando .value
-    // 2. Crear una variable para saber si el formulario es válido (inicialmente true)
-    // 3. Validar el campo de nombre de usuario
-    //    - Si no es válido, mostrar error y cambiar la variable a false
-    //    - Si es válido, limpiar el error
-    // 4. Validar el campo de mensaje
-    //    - Si no es válido, mostrar error y cambiar la variable a false
-    //    - Si es válido, limpiar el error
-    // 5. Retornar si el formulario es válido o no
-    
-    // Ejemplo de estructura:
-    /*
-    const userName = userNameInput.value;
-    const userMessage = userMessageInput.value;
-    let isValid = true;
-    
-    // Validar nombre
-    if (!isValidInput(userName)) {
-        // Mostrar error
-        // Agregar clase 'error' al input
-        isValid = false;
-    } else {
-        // Limpiar error
-        // Remover clase 'error' del input
-    }
-    
-    // Validar mensaje (estructura similar)
-    
-    return isValid;
-    */
-}
-
-/**
- * Obtiene la fecha y hora actual formateada
- * @returns {string} - Fecha y hora en formato legible
- */
 function getCurrentTimestamp() {
     const now = new Date();
-    const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
+    return now.toLocaleString('es-CO', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
-    };
-    return now.toLocaleDateString('es-ES', options);
+    });
 }
 
-/**
- * Obtiene las iniciales de un nombre
- * @param {string} name - Nombre completo
- * @returns {string} - Iniciales en mayúsculas
- */
-function getInitials(name) {
-    // TODO: Implementar función para obtener iniciales
-    // Pista: 
-    // 1. Separar el nombre por espacios usando split(' ')
-    // 2. Tomar la primera letra de cada palabra
-    // 3. Unirlas y convertirlas a mayúsculas
-    // 4. Si solo hay una palabra, retornar las dos primeras letras
+function isValidInput(value) {
+    return value && value.trim().length > 0;
 }
 
-/**
- * Actualiza el contador de mensajes
- */
-function updateMessageCount() {
-    // TODO: Implementar actualización del contador
-    // Pista: Usa template literals para crear el texto
-    // Formato: "X mensaje(s)" o "X mensajes"
-}
-
-/**
- * Oculta el estado vacío (mensaje cuando no hay mensajes)
- */
-function hideEmptyState() {
-    // TODO: Implementar función para ocultar el estado vacío
-    // Pista: Agrega la clase 'hidden' al elemento emptyState
-}
-
-/**
- * Muestra el estado vacío (mensaje cuando no hay mensajes)
- */
-function showEmptyState() {
-    // TODO: Implementar función para mostrar el estado vacío
-    // Pista: Remueve la clase 'hidden' del elemento emptyState
-}
-
-
-// ============================================
-// 3. CREACIÓN DE ELEMENTOS
-// ============================================
-
-/**
- * Crea un nuevo elemento de mensaje en el DOM
- * @param {string} userName - Nombre del usuario
- * @param {string} message - Contenido del mensaje
- */
-function createMessageElement(userName, message) {
-    // TODO: Implementar la creación de un nuevo mensaje
-    
-    // PASO 1: Crear el contenedor principal del mensaje
-    // Pista: document.createElement('div')
-    // Asignar la clase 'message-card'
-    
-    // PASO 2: Crear la estructura HTML del mensaje
-    // Puedes usar innerHTML con la siguiente estructura:
-    /*
-    <div class="message-card__header">
-        <div class="message-card__user">
-            <div class="message-card__avatar">[INICIALES]</div>
-            <span class="message-card__username">[NOMBRE]</span>
+function showUserInfo(user) {
+    userInfo.innerHTML = `
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin-top: 10px;">
+            <strong>✅ Usuario encontrado:</strong><br>
+            <strong>Nombre:</strong> ${user.name}<br>
+            <strong>Rol:</strong> ${user.rol}<br>
+            <strong>Ficha:</strong> ${user.ficha}
         </div>
-        <span class="message-card__timestamp">[FECHA]</span>
-    </div>
-    <div class="message-card__content">[MENSAJE]</div>
-    */
-    
-    // PASO 3: Insertar el nuevo elemento en el contenedor de mensajes
-    // Pista: messagesContainer.appendChild(nuevoElemento)
-    // O usar insertBefore para agregarlo al principio
-    
-    // PASO 4: Incrementar el contador de mensajes
-    
-    // PASO 5: Actualizar el contador visual
-    
-    // PASO 6: Ocultar el estado vacío si está visible
+    `;
 }
 
-
-// ============================================
-// 4. MANEJO DE EVENTOS
-// ============================================
-
-/**
- * Maneja el evento de envío del formulario
- * @param {Event} event - Evento del formulario
- */
-function handleFormSubmit(event) {
-    // TODO: Implementar el manejador del evento submit
-    
-    // PASO 1: Prevenir el comportamiento por defecto del formulario
-    // Pista: event.preventDefault()
-    
-    // PASO 2: Validar el formulario
-    // Si no es válido, detener la ejecución (return)
-    
-    // PASO 3: Obtener los valores de los campos
-    
-    // PASO 4: Crear el nuevo elemento de mensaje
-    // Llamar a createMessageElement con los valores obtenidos
-    
-    // PASO 5: Limpiar el formulario
-    // Pista: messageForm.reset()
-    
-    // PASO 6: Limpiar los errores
-    
-    // PASO 7: Opcional - Enfocar el primer campo para facilitar agregar otro mensaje
-    // Pista: userNameInput.focus()
+function showUserNotFound() {
+    userInfo.innerHTML = `
+        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin-top: 10px; color: #721c24;">
+            ❌ El usuario no está registrado en el sistema.
+        </div>
+    `;
+    taskFormContainer.style.display = 'none';
 }
 
-/**
- * Limpia los errores cuando el usuario empieza a escribir
- */
-function handleInputChange() {
-    // TODO: Implementar limpieza de errores al escribir
-    // Esta función se ejecuta cuando el usuario escribe en un campo
-    // Debe limpiar el error de ese campo específico
+function showValidationError(message) {
+    userInfo.innerHTML = `
+        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin-top: 10px; color: #721c24;">
+            ⚠️ ${message}
+        </div>
+    `;
 }
 
+function clearUserInfo() {
+    userInfo.innerHTML = '';
+    taskFormContainer.style.display = 'none';
+    currentUser = null;
+    tasks = [];
+    taskTableBody.innerHTML = '';
+    updateTaskCount();
+    showEmptyState();
+}
 
-// ============================================
-// 5. REGISTRO DE EVENTOS
-// ============================================
+function enableTaskForm() {
+    taskFormContainer.style.display = 'block';
+}
 
-/**
- * Aquí registramos todos los event listeners
- */
+function hideEmptyState() {
+    emptyState.style.display = 'none';
+}
 
-// TODO: Registrar el evento 'submit' en el formulario
-// Pista: messageForm.addEventListener('submit', handleFormSubmit);
+function showEmptyState() {
+    if (tasks.length === 0) {
+        emptyState.style.display = 'block';
+    }
+}
 
-// TODO: Registrar eventos 'input' en los campos para limpiar errores al escribir
-// Pista: userNameInput.addEventListener('input', handleInputChange);
-// Pista: userMessageInput.addEventListener('input', handleInputChange);
+function updateTaskCount() {
+    taskCount.textContent = tasks.length === 1 ? "1 tarea" : `${tasks.length} tareas`;
+}
 
-
-// ============================================
-// 6. REFLEXIÓN Y DOCUMENTACIÓN
-// ============================================
-
-/**
- * PREGUNTAS DE REFLEXIÓN:
- * 
- * 1. ¿Qué elemento del DOM estás seleccionando?
- *    R: 
- * 
- * 2. ¿Qué evento provoca el cambio en la página?
- *    R: 
- * 
- * 3. ¿Qué nuevo elemento se crea?
- *    R: 
- * 
- * 4. ¿Dónde se inserta ese elemento dentro del DOM?
- *    R: 
- * 
- * 5. ¿Qué ocurre en la página cada vez que repites la acción?
- *    R: 
- */
-
-
-// ============================================
-// 7. INICIALIZACIÓN (OPCIONAL)
-// ============================================
-
-/**
- * Esta función se ejecuta cuando el DOM está completamente cargado
- */
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ DOM completamente cargado');
-    console.log('📝 Aplicación de registro de mensajes iniciada');
+function createTaskElement(task) {
+    const row = document.createElement('tr');
+    row.style.borderBottom = '1px solid #dee2e6';
+    row.style.animation = 'fadeIn 0.3s ease';
+    row.dataset.taskId = task.id;
     
-    // Aquí puedes agregar cualquier inicialización adicional
-    // Por ejemplo, cargar mensajes guardados del localStorage
+    const statusColors = {
+        'Pendiente': '#ffc107',
+        'En progreso': '#17a2b8',
+        'Completada': '#28a745'
+    };
+    
+    row.innerHTML = `
+        <td style="padding: 12px;">
+            <span class="task-title">${task.title}</span>
+            <input class="task-edit-input task-edit-title" type="text" value="${task.title.replace(/"/g, '&quot;')}" style="display:none; width:100%; padding:6px; border:2px solid #4f46e5; border-radius:6px; font-size:14px;">
+        </td>
+        <td style="padding: 12px;">
+            <span class="task-desc">${task.description}</span>
+            <input class="task-edit-input task-edit-desc" type="text" value="${task.description.replace(/"/g, '&quot;')}" style="display:none; width:100%; padding:6px; border:2px solid #4f46e5; border-radius:6px; font-size:14px;">
+        </td>
+        <td style="padding: 12px;">
+            <span class="task-status" style="background: ${statusColors[task.status]}; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px;">
+                ${task.status}
+            </span>
+            <select class="task-edit-status" style="display:none; width:100%; padding:6px; border:2px solid #4f46e5; border-radius:6px; font-size:14px;">
+                <option value="Pendiente" ${task.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="En progreso" ${task.status === 'En progreso' ? 'selected' : ''}>En progreso</option>
+                <option value="Completada" ${task.status === 'Completada' ? 'selected' : ''}>Completada</option>
+            </select>
+        </td>
+        <td style="padding: 12px; text-align: center; white-space: nowrap;">
+            <button class="btn-edit" style="background:#4f46e5; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px; margin-right:4px;">Editar</button>
+            <button class="btn-delete" style="background:#ef4444; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">Eliminar</button>
+            <button class="btn-save" style="background:#10b981; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px; margin-right:4px; display:none;">Guardar</button>
+            <button class="btn-cancel" style="background:#6b7280; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px; display:none;">Cancelar</button>
+        </td>
+    `;
+
+    row.querySelector('.btn-edit').addEventListener('click', () => enableEditMode(row, task));
+    row.querySelector('.btn-delete').addEventListener('click', () => deleteTask(task.id, row));
+    row.querySelector('.btn-save').addEventListener('click', () => saveEdit(task.id, row));
+    row.querySelector('.btn-cancel').addEventListener('click', () => cancelEdit(row, task));
+    
+    taskTableBody.appendChild(row);
+}
+
+function enableEditMode(row, task) {
+    row.querySelector('.task-title').style.display = 'none';
+    row.querySelector('.task-desc').style.display = 'none';
+    row.querySelector('.task-status').style.display = 'none';
+    row.querySelector('.task-edit-title').style.display = 'block';
+    row.querySelector('.task-edit-desc').style.display = 'block';
+    row.querySelector('.task-edit-status').style.display = 'block';
+    row.querySelector('.btn-edit').style.display = 'none';
+    row.querySelector('.btn-delete').style.display = 'none';
+    row.querySelector('.btn-save').style.display = 'inline-block';
+    row.querySelector('.btn-cancel').style.display = 'inline-block';
+}
+
+function cancelEdit(row, task) {
+    row.querySelector('.task-title').style.display = 'inline';
+    row.querySelector('.task-desc').style.display = 'inline';
+    row.querySelector('.task-status').style.display = 'inline';
+    row.querySelector('.task-edit-title').style.display = 'none';
+    row.querySelector('.task-edit-desc').style.display = 'none';
+    row.querySelector('.task-edit-status').style.display = 'none';
+    row.querySelector('.btn-edit').style.display = 'inline-block';
+    row.querySelector('.btn-delete').style.display = 'inline-block';
+    row.querySelector('.btn-save').style.display = 'none';
+    row.querySelector('.btn-cancel').style.display = 'none';
+}
+
+function disableAllEditModes() {
+    document.querySelectorAll('#taskTableBody tr').forEach(row => {
+        const taskId = row.dataset.taskId;
+        const task = tasks.find(t => String(t.id) === String(taskId));
+        if (task) cancelEdit(row, task);
+    });
+}
+
+async function saveEdit(taskId, row) {
+    const newTitle = row.querySelector('.task-edit-title').value.trim();
+    const newDesc = row.querySelector('.task-edit-desc').value.trim();
+    const newStatus = row.querySelector('.task-edit-status').value;
+
+    if (!newTitle || !newDesc) {
+        alert('El título y la descripción no pueden estar vacíos');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, description: newDesc, status: newStatus })
+        });
+
+        if (response.ok) {
+            const updatedTask = await response.json();
+            const idx = tasks.findIndex(t => String(t.id) === String(taskId));
+            if (idx !== -1) tasks[idx] = updatedTask;
+            cancelEdit(row, updatedTask);
+            row.querySelector('.task-title').textContent = updatedTask.title;
+            row.querySelector('.task-desc').textContent = updatedTask.description;
+            const statusBadge = row.querySelector('.task-status');
+            const statusColors = { 'Pendiente': '#ffc107', 'En progreso': '#17a2b8', 'Completada': '#28a745' };
+            statusBadge.textContent = updatedTask.status;
+            statusBadge.style.background = statusColors[updatedTask.status];
+            console.log('Tarea actualizada:', updatedTask);
+        } else {
+            alert('Error al actualizar la tarea');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión al actualizar');
+    }
+}
+
+async function deleteTask(taskId, row) {
+    if (!confirm('¿Eliminar esta tarea?')) return;
+
+    try {
+        const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            tasks = tasks.filter(t => String(t.id) !== String(taskId));
+            row.remove();
+            updateTaskCount();
+            if (tasks.length === 0) showEmptyState();
+            console.log('Tarea eliminada:', taskId);
+        } else {
+            alert('Error al eliminar la tarea');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión al eliminar');
+    }
+}
+
+async function searchUser() {
+    const userId = userIdInput.value;
+    
+    if (!isValidInput(userId)) {
+        showValidationError("Por favor ingresa un documento/ID válido");
+        return;
+    }
+    
+    btnSearch.disabled = true;
+    btnSearch.textContent = 'Buscando...';
+    userInfo.innerHTML = '';
+    taskFormContainer.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_URL}/users`);
+        const users = await response.json();
+        
+        console.log("Users desde API:", users);
+        console.log("Buscando ID:", userId);
+        
+        const user = users.find(u => String(u.id).trim() === userId.trim());
+        
+        console.log("Usuario encontrado:", user);
+        
+        if (user) {
+            currentUser = user;
+            showUserInfo(user);
+            enableTaskForm();
+            
+            const tasksResponse = await fetch(`${API_URL}/tasks?userId=${userId}`);
+            const savedTasks = await tasksResponse.json();
+            
+            tasks = savedTasks;
+            taskTableBody.innerHTML = '';
+            
+            if (tasks.length > 0) {
+                hideEmptyState();
+                tasks.forEach(task => createTaskElement(task));
+            } else {
+                showEmptyState();
+            }
+            
+            updateTaskCount();
+        } else {
+            showUserNotFound();
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        showValidationError("Error de conexión: " + error.message + ". Verifica que el servidor esté corriendo.");
+    } finally {
+        btnSearch.disabled = false;
+        btnSearch.textContent = 'Buscar';
+    }
+}
+
+async function registerTask(event) {
+    event.preventDefault();
+    disableAllEditModes();
+    
+    const titleInput = document.getElementById('taskTitle');
+    const descriptionInput = document.getElementById('taskDescription');
+    const statusInput = document.getElementById('taskStatus');
+    
+    const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const status = statusInput.value;
+    
+    if (!title || !description) {
+        alert("Por favor completa todos los campos");
+        return;
+    }
+    
+    const task = {
+        userId: currentUser.id,
+        userName: currentUser.name,
+        title: title,
+        description: description,
+        status: status,
+        createdAt: getCurrentTimestamp()
+    };
+    
+    try {
+        const response = await fetch(`${API_URL}/tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(task)
+        });
+        
+        if (response.ok) {
+            const savedTask = await response.json();
+            tasks.push(savedTask);
+            createTaskElement(savedTask);
+            hideEmptyState();
+            updateTaskCount();
+            taskForm.reset();
+            console.log('Tarea guardada en backend:', savedTask);
+        } else {
+            alert('Error al guardar la tarea');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    }
+}
+
+btnSearch.addEventListener('click', searchUser);
+
+userIdInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchUser();
+    }
 });
 
+taskForm.addEventListener('submit', registerTask);
 
-// ============================================
-// 8. FUNCIONALIDADES ADICIONALES (BONUS)
-// ============================================
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('DOM cargado - Sistema de gestión de tareas activo');
+    showEmptyState();
 
-/**
- * RETOS ADICIONALES OPCIONALES:
- * 
- * 1. Agregar un botón para eliminar mensajes individuales
- * 2. Implementar localStorage para persistir los mensajes
- * 3. Agregar un contador de caracteres en el textarea
- * 4. Implementar un botón para limpiar todos los mensajes
- * 5. Agregar diferentes colores de avatar según el nombre del usuario
- * 6. Permitir editar mensajes existentes
- * 7. Agregar emojis o reacciones a los mensajes
- * 8. Implementar búsqueda/filtrado de mensajes
- */
+    // 🚀 Carga automática de IDs disponibles al entrar a la página
+    try {
+        const response = await fetch(`${API_URL}/users`);
+        if (response.ok) {
+            const users = await response.json();
+            console.group("IDs DISPONIBLES PARA BUSCAR (Carga Inicial)");
+            console.log("Copia cualquiera de estos IDs en el buscador:");
+            console.table(users.map(u => ({ ID: u.id, Nombre: u.name, Rol: u.rol })));
+            console.groupEnd();
+        }
+    } catch (error) {
+        console.warn("No se pudieron precargar los IDs en consola. ¿El backend está encendido?", error.message);
+    }
+});
